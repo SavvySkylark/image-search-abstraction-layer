@@ -3,4 +3,6 @@
 .glitch-assets
 .glitch-meta
 .viminfo
+.eslintrc.json
 node_modules
+info.txt
