@@ -9,6 +9,9 @@ const querystring = require('querystring');
 
 const imgur3Endpoint = 'https://api.imgur.com/3/gallery/search/time';
 const clientId = 'Client-ID 6d3b8c258bd2240';
+const googleKey = 'AIzaSyCHeLtdeiTuqcJoczSPcuDtWjNuSoY3jzM';
+const cx = '011541652210393335320:-1oqqax2pvg';
+const googleSearchEndpoint = 'https://www.googleapis.com/customsearch/v1';
 
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -21,7 +24,16 @@ app.get('/', function (request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
 
-app.get('/api/imagesearch/:search', function(request, response) {
+app.get('/api/google/imagesearch/:search', function(request,response) {
+
+  var offset = request.query.offset||'';
+  var searchTerms = request.params.search;
+
+  
+
+});
+
+app.get('/api/imgur/imagesearch/:search', function(request, response) {
   var offset = request.query.offset||-999;
   request.params.search;
   var qsObj = {
@@ -44,13 +56,17 @@ app.get('/api/imagesearch/:search', function(request, response) {
       'Authorization': 'Client-ID 5d3b8c258bd2240'
     }
   };
-
+  var imageList = [];
   console.log(JSON.stringify(options));
   var req = https.request(options, (res) => {
+    var body = '';
+    res.setEncoding('utf8');
     res.on('data', (d) => {
-      response.write(d);
+      body += d;
     });
     res.on('end', ()=>{
+      console.log();
+      response.write(body);
       response.end();
     });
     res.on('error', (err) => {
