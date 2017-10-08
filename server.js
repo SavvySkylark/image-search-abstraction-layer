@@ -11,6 +11,7 @@ const imgur3Endpoint = 'https://api.imgur.com/3/gallery/search/time';
 const clientId = 'Client-ID 6d3b8c258bd2240';
 const googleKey = 'AIzaSyCHeLtdeiTuqcJoczSPcuDtWjNuSoY3jzM';
 const cx = '011541652210393335320:-1oqqax2pvg';
+const numResults = 5;
 const googleSearchEndpoint = 'https://www.googleapis.com/customsearch/v1';
 
 // we've started you off with Express, 
@@ -26,8 +27,16 @@ app.get('/', function (request, response) {
 
 app.get('/api/google/imagesearch/:search', function(request,response) {
 
-  var offset = request.query.offset||'';
+  var offset = (request.query.offset||1) - 1;
   var searchTerms = request.params.search;
+
+  var query = {
+    key: googleKey,
+    cx: cx,
+    q: searchTerms,
+    num: numResults,
+    start: offset * numResults + 1
+  };
 
   
 
