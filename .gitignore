@@ -4,5 +4,6 @@
 .glitch-meta
 .viminfo
 .eslintrc.json
+.eslintrc.js
 node_modules
 info.txt
