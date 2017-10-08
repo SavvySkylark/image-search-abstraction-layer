@@ -38,7 +38,19 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
     start: offset * numResults + 1
   };
 
-  
+  var options = {
+    hostname: 'www.googleapis.com',
+    port: '443',
+    path: '/customsearch/v1' + querystring.stringify(query),
+    method: 'GET'
+  };
+
+  https.request(options, (res) => {
+    res.on('data', (d) => {
+      console.log(JSON.stringify(d));
+    });
+    res.end();
+  });
 
 });
 
