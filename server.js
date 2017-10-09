@@ -7,12 +7,12 @@ const app = express();
 const https = require('https');
 const querystring = require('querystring');
 
-const imgur3Endpoint = 'https://api.imgur.com/3/gallery/search/time';
-const clientId = 'Client-ID 6d3b8c258bd2240';
+// const imgur3Endpoint = 'https://api.imgur.com/3/gallery/search/time';
+// const clientId = 'Client-ID 6d3b8c258bd2240';
 const googleKey = 'AIzaSyCHeLtdeiTuqcJoczSPcuDtWjNuSoY3jzM';
 const cx = '011541652210393335320:-1oqqax2pvg';
 const numResults = 5;
-const googleSearchEndpoint = 'https://www.googleapis.com/customsearch/v1';
+// const googleSearchEndpoint = 'https://www.googleapis.com/customsearch/v1';
 
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -27,6 +27,7 @@ app.get('/', function (request, response) {
 
 app.get('/api/google/imagesearch/:search', function(request,response) {
 
+  console.log('thing');
   var offset = (request.query.offset||1) - 1;
   var searchTerms = request.params.search;
 
@@ -49,7 +50,9 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
     res.on('data', (d) => {
       console.log(JSON.stringify(d));
     });
-    res.end();
+    res.end(() => {
+      response.end();
+    });
   });
 
 });
@@ -104,3 +107,5 @@ app.get('/api/imgur/imagesearch/:search', function(request, response) {
 var listener = app.listen('9080', function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+module.exports = listener;
