@@ -27,7 +27,6 @@ app.get('/', function (request, response) {
 
 app.get('/api/google/imagesearch/:search', function(request,response) {
 
-  console.log('thing');
   var offset = (request.query.offset||1) - 1;
   var searchTerms = request.params.search;
 
@@ -42,18 +41,41 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
   var options = {
     hostname: 'www.googleapis.com',
     port: '443',
-    path: '/customsearch/v1' + querystring.stringify(query),
+    path: '/customsearch/v1?' + querystring.stringify(query),
     method: 'GET'
   };
-
-  https.request(options, (res) => {
-    res.on('data', (d) => {
-      console.log(JSON.stringify(d));
-    });
-    res.end(() => {
+  // response.end('hello world');
+  var googleReq =  https.request(options, (res) => {
+    res.setEncoding('utf8');
+    var payload = '';
+    res.on('error', (e) => {
+      console.log(`problem with request: ${e.message}`);
       response.end();
     });
+    res.on('data', (d) => {
+      payload += d;
+    });
+    res.on('end', () => {
+      var myResponsePayload = [];
+      var itemToPush;
+      payload = JSON.parse(payload);
+      payload.items.forEach(function(item) {
+        itemToPush = {
+          url: item.pagemap.ces_image[0].src,
+          snippet: item.snippet,
+          thumbnail: item.pagemap.ces_thumbnail[0].src,
+          context: item.link
+        };
+        myResponsePayload.push(itemToPush);
+      });
+      response.end(myResponsePayload);
+    });
   });
+  googleReq.on('error', (e) => {
+    console.log(`problem with request: ${e.message}`);
+    response.end();
+  });
+  googleReq.end();
 
 });
 
@@ -90,7 +112,8 @@ app.get('/api/imgur/imagesearch/:search', function(request, response) {
     });
     res.on('end', ()=>{
       console.log();
-      response.write(body);
+      // response.write(body);
+
       response.end();
     });
     res.on('error', (err) => {

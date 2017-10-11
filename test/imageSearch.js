@@ -21,6 +21,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var expect = chai.expect;
+var urlRegex  = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
 chai.use(chaiHttp);
 
@@ -29,8 +30,15 @@ describe('test', () => {
     chai.request('http://localhost:9080')
       .get('/api/google/imagesearch/cats')
       .end((err, res)=>{
-        console.log('thing');
         expect(res).to.have.status(200);
+        var body = res.text;
+        expect(body).to.be.an('array');
+        if(body.length > 0) {
+          expect(body[0].url).to.match(urlRegex);
+          expect(body[0].snippet).to.be.a('string');
+          expect(body[0].thumbnail).to.match(urlRegex);
+          expect(body[0].context).to.match(urlRegex);
+        }
         done();
       });
   });
