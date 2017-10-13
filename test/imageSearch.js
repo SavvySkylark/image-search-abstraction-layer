@@ -31,7 +31,8 @@ describe('test', () => {
       .get('/api/google/imagesearch/cats')
       .end((err, res)=>{
         expect(res).to.have.status(200);
-        var body = res.text;
+        expect(res.header['content-type']).to.eql('application/json');
+        var body = JSON.parse(res.text);
         expect(body).to.be.an('array');
         if(body.length > 0) {
           expect(body[0].url).to.match(urlRegex);

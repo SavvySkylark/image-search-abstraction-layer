@@ -44,6 +44,7 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
     path: '/customsearch/v1?' + querystring.stringify(query),
     method: 'GET'
   };
+
   // response.end('hello world');
   var googleReq =  https.request(options, (res) => {
     res.setEncoding('utf8');
@@ -59,16 +60,20 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
       var myResponsePayload = [];
       var itemToPush;
       payload = JSON.parse(payload);
+      // console.log(JSON.stringify(payload.items[0]));
+      // console.log(JSON.stringify(payload));
       payload.items.forEach(function(item) {
+        // console.log(JSON.stringify(item));
         itemToPush = {
-          url: item.pagemap.ces_image[0].src,
+          url: item.pagemap.cse_image[0].src,
           snippet: item.snippet,
-          thumbnail: item.pagemap.ces_thumbnail[0].src,
+          thumbnail: item.pagemap.cse_thumbnail[0].src,
           context: item.link
         };
         myResponsePayload.push(itemToPush);
       });
-      response.end(myResponsePayload);
+      response.setHeader('Content-Type', 'application/json');
+      response.end(JSON.stringify(myResponsePayload));
     });
   });
   googleReq.on('error', (e) => {
