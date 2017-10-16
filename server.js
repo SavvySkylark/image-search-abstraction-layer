@@ -7,12 +7,13 @@ const app = express();
 const https = require('https');
 const querystring = require('querystring');
 
-// const imgur3Endpoint = 'https://api.imgur.com/3/gallery/search/time';
-// const clientId = 'Client-ID 6d3b8c258bd2240';
+//information needed to successfully call google api
 const googleKey = 'AIzaSyCHeLtdeiTuqcJoczSPcuDtWjNuSoY3jzM';
 const cx = '011541652210393335320:-1oqqax2pvg';
 const numResults = 5;
-// const googleSearchEndpoint = 'https://www.googleapis.com/customsearch/v1';
+
+//list containing lastest searches
+var latestSearches = [];
 
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -25,10 +26,20 @@ app.get('/', function (request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
 
-app.get('/api/google/imagesearch/:search', function(request,response) {
+app.get('/api/imagesearch/:search', function(request,response) {
 
   var offset = (request.query.offset||1) - 1;
   var searchTerms = request.params.search;
+  var currentDate = new Date();
+
+  if(latestSearches.length > 9) {
+    latestSearches.pop();
+  }
+
+  latestSearches.unshift({
+    term: searchTerms,
+    when: currentDate.toDateString() 
+  });
 
   var query = {
     key: googleKey,
@@ -60,10 +71,7 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
       var myResponsePayload = [];
       var itemToPush;
       payload = JSON.parse(payload);
-      // console.log(JSON.stringify(payload.items[0]));
-      // console.log(JSON.stringify(payload));
       payload.items.forEach(function(item) {
-        // console.log(JSON.stringify(item));
         itemToPush = {
           url: item.pagemap.cse_image[0].src,
           snippet: item.snippet,
@@ -84,51 +92,9 @@ app.get('/api/google/imagesearch/:search', function(request,response) {
 
 });
 
-app.get('/api/imgur/imagesearch/:search', function(request, response) {
-  var offset = request.query.offset||-999;
-  request.params.search;
-  var qsObj = {
-    q: request.params.search
-  };
-  var offSetUri;
-  if (offset > 0) {
-    offSetUri = '/' + offset;
-  } else {
-    offSetUri = '';
-  }
-  
-  var imgurUri = '/3/gallery/search/time' + offSetUri + '?' + querystring.stringify(qsObj);
-  var options = {
-    hostname: 'api.imgur.com',
-    port: '443',
-    path: imgurUri,
-    method: 'GET',
-    headers: {
-      'Authorization': 'Client-ID 5d3b8c258bd2240'
-    }
-  };
-  var imageList = [];
-  console.log(JSON.stringify(options));
-  var req = https.request(options, (res) => {
-    var body = '';
-    res.setEncoding('utf8');
-    res.on('data', (d) => {
-      body += d;
-    });
-    res.on('end', ()=>{
-      console.log();
-      // response.write(body);
-
-      response.end();
-    });
-    res.on('error', (err) => {
-      console.log(err);
-    });
-  });
-  req.on('error', (e) => {
-    console.error(e);
-  });
-  req.end();
+app.get('/api/latest/imagesearch', function(request, response) {
+  response.setHeader('Content-Type', 'application/json');
+  response.end(JSON.stringify(latestSearches));
 });
 
 // listen for requests :)
